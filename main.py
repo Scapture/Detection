@@ -86,7 +86,7 @@ while True:
                 if not previous_state:
                     enter_count += 1  # 이전 상태가 False였으면 입장 횟수 증가
                     # 입장 순간의 프레임 값을 파일에 저장
-                    enter_frame_file.write(f"{id} {count}\n")
+                    enter_frame_file.write(f"{count}\n")
         elif results1 >= 0:
             state = False  # 객체가 area1에 있음
 
