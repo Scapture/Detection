@@ -37,13 +37,17 @@ for frame_number in frame_numbers:
     output_video_name = f'{frame_number}.mp4'
     output_video_path = os.path.join(output_directory, output_video_name)
 
+    # 변수 초기화
+    ball_center_x = 0
+    ball_center_y = 0
+    
     # 원본 동영상의 해상도와 프레임 레이트를 가져옵니다.
-    frame_width = int(cap.get(3))
-    frame_height = int(cap.get(4))
-    frame_rate = int(cap.get(5))
+    frame_width = 1080
+    frame_height = 1920
+    frame_rate = int(cap.get(cv2.CAP_PROP_FPS))
 
     fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-    out = cv2.VideoWriter(output_video_path, fourcc, frame_rate, (frame_width, frame_height))
+    out = cv2.VideoWriter(output_video_path, fourcc, frame_rate*0.4, (frame_width, frame_height))
 
     # 원본 비디오를 프레임 단위로 읽어서 저장
     cap.set(cv2.CAP_PROP_POS_FRAMES, start_frame - 1)  # 시작 프레임으로 이동
@@ -79,10 +83,13 @@ for frame_number in frame_numbers:
 
         ball_center_x = max(0, min(ball_center_x, frame.shape[1]))
         ball_center_y = max(0, min(ball_center_y, frame.shape[0]))
-        zoomed_frame = frame[max(0, ball_center_y - 250):min(frame.shape[0], ball_center_y + 250),
-                            max(0, ball_center_x - 510):min(frame.shape[1], ball_center_x + 510)]
+        print(ball_center_x)
+        print(ball_center_y)
+        zoomed_frame = frame[max(0, ball_center_y - 960):min(frame.shape[0], ball_center_y + 960),
+                            max(0, ball_center_x - 520):min(frame.shape[1], ball_center_x + 520)]
 
-        frame = cv2.resize(frame, (1020, 500))
+        # frame = cv2.resize(frame, (1920, 1080))
+        zoomed_frame = cv2.resize(zoomed_frame, (1080, 1920))
         # 확대된 화면을 저장
         out.write(zoomed_frame)
 

@@ -39,6 +39,10 @@ frame_width = int(cap.get(3))
 frame_height = int(cap.get(4))
 fps = int(cap.get(5))
 
+print(frame_width)
+print(frame_height)
+print(fps)
+
 # 입장 횟수 카운터
 enter_count = 0
 
