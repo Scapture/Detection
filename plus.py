@@ -16,7 +16,7 @@ def makeShortFormVideo():
     class_list = data.split("\n")
 
     # 결과 동영상 파일 저장 디렉토리
-    output_directory = '출력영상/'
+    output_short_directory = 'short/'
 
     tracker = Tracker()
 
@@ -35,7 +35,7 @@ def makeShortFormVideo():
 
         # 결과 동영상 파일 생성
         output_video_name = f'{frame_number}_short.mp4'
-        output_video_path = os.path.join(output_directory, output_video_name)
+        output_video_path = os.path.join(output_short_directory, output_video_name)
 
         # 변수 초기화
         ball_center_x = 0
@@ -101,13 +101,13 @@ def makeShortFormVideo():
     # 원본 동영상 파일 닫기
     cap.release()
 
-    print(f"{len(frame_numbers)} 개의 영상 파일이 {output_directory}에 생성되었습니다.")
+    print(f"{len(frame_numbers)} 개의 영상 파일이 {output_short_directory}에 생성되었습니다.")
 
 def makeLongVideo():
     # 원본 동영상 파일 경로
     original_video_path = '하이라이트 좌측 영상.mp4'
     # 결과 동영상 파일 저장 디렉토리
-    output_directory = '출력영상/'
+    output_long_directory = 'long/'
     # 입장프레임.txt에서 프레임 번호를 읽어옵니다.
     with open('입장프레임.txt', 'r') as file:
         frame_numbers = [int(line.strip()) for line in file]
@@ -120,7 +120,7 @@ def makeLongVideo():
         end_frame = min(int(cap.get(cv2.CAP_PROP_FRAME_COUNT)), frame_number + 90)  # 3초 후
         # 결과 동영상 파일 생성
         output_video_name = f'{frame_number}_long.mp4'
-        output_video_path = output_directory + output_video_name
+        output_video_path = output_long_directory + output_video_name
         fourcc = cv2.VideoWriter_fourcc(*'mp4v')
         out = cv2.VideoWriter(output_video_path, fourcc, 30, (1920, 1080))
         # 원본 비디오를 프레임 단위로 읽어서 저장
@@ -137,4 +137,4 @@ def makeLongVideo():
         out.release()
     # 원본 동영상 파일 닫기
     cap.release()
-    print(f"{len(frame_numbers)} 개의 영상 파일이 {output_directory}에 생성되었습니다.")
+    print(f"{len(frame_numbers)} 개의 영상 파일이 {output_long_directory}에 생성되었습니다.")
