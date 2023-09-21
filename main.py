@@ -28,9 +28,7 @@ count = 0
 
 tracker = Tracker()
 # 필드박스
-area1 = [(50, 320), (50, 70), (1020, 70), (1020, 320)]
-# 골대박스
-area2 = [(50, 900), (50, 330), (1020, 330), (1020, 900)]
+area = [(10, 10), (10, 490), (1010, 490), (1010, 10)]
 
 ball_enter = {}
 frame_dict = {}  # 객체 ID를 키로 하고 해당 객체가 퇴장 또는 입장할 때의 프레임을 값으로 저장
@@ -71,10 +69,9 @@ while True:
     for bbox in bbox_id:
         x3, y3, x4, y4, id = bbox
 
-        results1 = cv2.pointPolygonTest(np.array(area1, np.int32), ((x4, y4)), False)
-        results2 = cv2.pointPolygonTest(np.array(area2, np.int32), ((x4, y4)), False)
+        results = cv2.pointPolygonTest(np.array(area, np.int32), ((x4, y4)), False)
 
-        if results2 >= 0:
+        if results >= 0:
             state = True  # 객체가 area2에 있음
             ball_enter[id] = (x4, y4)
             if id not in frame_dict:
@@ -83,11 +80,10 @@ while True:
                     enter_count += 1  # 이전 상태가 False였으면 입장 횟수 증가
                     # 입장 순간의 프레임 값을 파일에 저장
                     enter_frame_file.write(f"{count}\n")
-        elif results1 >= 0:
+        elif results >= 0:
             state = False  # 객체가 area1에 있음
 
-    cv2.polylines(frame, [np.array(area1, np.int32)], True, (0, 0, 255), 1)
-    cv2.polylines(frame, [np.array(area2, np.int32)], True, (0, 255, 0), 1)
+    cv2.polylines(frame, [np.array(area, np.int32)], True, (0, 0, 255), 1)
 
     # 입장 횟수 출력
     print("입장 횟수:", enter_count)
@@ -107,5 +103,5 @@ enter_frame_file.close()
 cap.release()
 cv2.destroyAllWindows()
 
-plus.makeShortFormVideo()
-plus.makeLongVideo()
+# plus.makeShortFormVideo()
+# plus.makeLongVideo()
