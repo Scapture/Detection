@@ -17,7 +17,7 @@ cv2.namedWindow('RGB')
 cv2.setMouseCallback('RGB', RGB)
 
 # 사용할 비디오 파일
-cap = cv2.VideoCapture('골대 영상.mp4')
+cap = cv2.VideoCapture('goalline.mp4')
 
 # 학습 클래스 불러오기
 my_file = open("coco.txt", "r")
@@ -36,6 +36,8 @@ frame_dict = {}  # 객체 ID를 키로 하고 해당 객체가 퇴장 또는 입
 # 입장 횟수 카운터
 enter_count = 0
 
+after_change_state = 0
+
 # 입장프레임 저장 파일
 enter_frame_file = open("frames.txt", "w")
 
@@ -50,6 +52,8 @@ while True:
     if count % 3 != 0:
         continue
     frame = cv2.resize(frame, (1020, 500))
+
+    after_change_state +=1
 
     results = model.predict(frame)
     a = results[0].boxes.boxes
@@ -66,13 +70,16 @@ while True:
             list.append([x1, y1, x2, y2])
     bbox_id = tracker.update(list)
     
+    if after_change_state >=100:
+                state = False
+
     for bbox in bbox_id:
         x3, y3, x4, y4, id = bbox
 
-        results = cv2.pointPolygonTest(np.array(area, np.int32), ((x4, y4)), False)
+        results = cv2.pointPolygonTest(np.array(area, np.int32), (((x3+x4)/2, (y3+y4)/2)), False)
 
         if results >= 0:
-            state = True  # 객체가 area2에 있음
+            state = True  # 객체가 area에 있음
             ball_enter[id] = (x4, y4)
             if id not in frame_dict:
                 frame_dict[id] = count  # 입장한 객체의 프레임 저장
@@ -80,13 +87,17 @@ while True:
                     enter_count += 1  # 이전 상태가 False였으면 입장 횟수 증가
                     # 입장 순간의 프레임 값을 파일에 저장
                     enter_frame_file.write(f"{count}\n")
-        elif results >= 0:
-            state = False  # 객체가 area1에 있음
+
+        if state != previous_state:
+            after_change_state =0
+        
+        
 
     cv2.polylines(frame, [np.array(area, np.int32)], True, (0, 0, 255), 1)
 
     # 입장 횟수 출력
     print("입장 횟수:", enter_count)
+    print("State:", state, "프레임", after_change_state)
     
     previous_state = state  # 현재 상태를 이전 상태로 업데이트
 
