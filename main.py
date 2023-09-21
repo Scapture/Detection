@@ -35,20 +35,11 @@ area2 = [(50, 900), (50, 330), (1020, 330), (1020, 900)]
 ball_enter = {}
 frame_dict = {}  # 객체 ID를 키로 하고 해당 객체가 퇴장 또는 입장할 때의 프레임을 값으로 저장
 
-# 비디오 프레임 정보
-frame_width = int(cap.get(3))
-frame_height = int(cap.get(4))
-fps = int(cap.get(5))
-
-print(frame_width)
-print(frame_height)
-print(fps)
-
 # 입장 횟수 카운터
 enter_count = 0
 
 # 입장프레임 저장 파일
-enter_frame_file = open("입장프레임.txt", "w")
+enter_frame_file = open("frames.txt", "w")
 
 state = False # 현재 공의 상태
 previous_state = False  # 이전 상태를 추적하기 위한 변수
