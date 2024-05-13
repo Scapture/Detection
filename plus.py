@@ -21,7 +21,7 @@ def makeShortFormVideo():
     tracker = Tracker()
 
     # 입장프레임.txt에서 프레임 번호를 읽어오기
-    with open('입장프레임.txt', 'r') as file:
+    with open('frames.txt', 'r') as file:
         frame_numbers = [int(line.strip()) for line in file]
 
     # 원본 비디오 파일 열기

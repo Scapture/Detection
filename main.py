@@ -17,7 +17,7 @@ cv2.namedWindow('RGB')
 cv2.setMouseCallback('RGB', RGB)
 
 # 사용할 비디오 파일
-cap = cv2.VideoCapture('goalline.mp4')
+cap = cv2.VideoCapture('골대 영상.mp4')
 
 # 학습 클래스 불러오기
 my_file = open("coco.txt", "r")
@@ -27,8 +27,10 @@ class_list = data.split("\n")
 count = 0
 
 tracker = Tracker()
-# 필드박스
-area = [(10, 10), (10, 490), (1010, 490), (1010, 10)]
+# 필드박스(밖) 밖 -> 안 = 골 좌상,우상,우하,좌하
+area1 = [(170, 0), (1020, 0), (1020, 500), (170, 500)]
+# 골대박스(안)
+area2 = [(0, 0), (150, 0), (150, 500), (0, 500)]
 
 ball_enter = {}
 frame_dict = {}  # 객체 ID를 키로 하고 해당 객체가 퇴장 또는 입장할 때의 프레임을 값으로 저장
@@ -53,8 +55,6 @@ while True:
         continue
     frame = cv2.resize(frame, (1020, 500))
 
-    after_change_state +=1
-
     results = model.predict(frame)
     a = results[0].boxes.boxes
     px = pd.DataFrame(a).astype("float")
@@ -66,20 +66,19 @@ while True:
         y2 = int(row[3])
         d = int(row[5])
         c = class_list[d]
+        # if 'sports ball' and 'frisbee' and 'clock' and 'mouse' and 'kite' in c:
         if 'sports ball' in c:
             list.append([x1, y1, x2, y2])
     bbox_id = tracker.update(list)
-    
-    if after_change_state >=100:
-                state = False
 
     for bbox in bbox_id:
         x3, y3, x4, y4, id = bbox
 
-        results = cv2.pointPolygonTest(np.array(area, np.int32), (((x3+x4)/2, (y3+y4)/2)), False)
+        results1 = cv2.pointPolygonTest(np.array(area1, np.int32), ((x4, y4)), False)
+        results2 = cv2.pointPolygonTest(np.array(area2, np.int32), ((x4, y4)), False)
 
-        if results >= 0:
-            state = True  # 객체가 area에 있음
+        if results2 >= 0:
+            state = True  # 객체가 area2에 있음
             ball_enter[id] = (x4, y4)
             if id not in frame_dict:
                 frame_dict[id] = count  # 입장한 객체의 프레임 저장
@@ -87,18 +86,15 @@ while True:
                     enter_count += 1  # 이전 상태가 False였으면 입장 횟수 증가
                     # 입장 순간의 프레임 값을 파일에 저장
                     enter_frame_file.write(f"{count}\n")
+        elif results1 >= 0:
+            state = False  # 객체가 area1에 있음
 
-        if state != previous_state:
-            after_change_state =0
-        
-        
-
-    cv2.polylines(frame, [np.array(area, np.int32)], True, (0, 0, 255), 1)
+    cv2.polylines(frame, [np.array(area1, np.int32)], True, (0, 0, 255), 1)
+    cv2.polylines(frame, [np.array(area2, np.int32)], True, (0, 255, 0), 1)
 
     # 입장 횟수 출력
     print("입장 횟수:", enter_count)
-    print("State:", state, "프레임", after_change_state)
-    
+
     previous_state = state  # 현재 상태를 이전 상태로 업데이트
 
     cv2.imshow("RGB", frame)
@@ -114,5 +110,5 @@ enter_frame_file.close()
 cap.release()
 cv2.destroyAllWindows()
 
-# plus.makeShortFormVideo()
+plus.makeShortFormVideo()
 # plus.makeLongVideo()
